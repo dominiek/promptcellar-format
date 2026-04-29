@@ -1,0 +1,15 @@
+# Patterns whose match against the prompt text causes the prompt to be excluded
+# from capture. A stub record (with `excluded`) is written in place so the
+# timeline is not gappy. See SPEC.md §4 for the format.
+
+id: secrets
+(AWS_SECRET_ACCESS_KEY|GITHUB_TOKEN|OPENAI_API_KEY|ANTHROPIC_API_KEY)
+
+id: security-paths
+\bsecurity/(runbooks|incident)\b
+
+id: credential-shapes
+(ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{32,}|xoxb-[0-9A-Za-z-]{20,})
+
+id: customer-data
+\b(customer|user)_id\s*[:=]\s*['"]?[A-Za-z0-9_-]{8,}

@@ -1,0 +1,19 @@
+{
+  "version": "plf-1",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "session_id": "8f14e45f-ceea-467a-9575-d68a64236d57",
+  "timestamp": "2026-04-29T09:14:22.001Z",
+  "author": {
+    "email": "jane@example.com",
+    "name": "Jane Doe"
+  },
+  "tool": {
+    "name": "claude-code",
+    "version": "2.4.0"
+  },
+  "model": {
+    "provider": "anthropic",
+    "name": "claude-opus-4-7"
+  },
+  "prompt": "add a health check endpoint at /healthz that returns 200 OK"
+}
