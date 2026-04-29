@@ -1,6 +1,6 @@
 # Promptcellar Logging Format (PLF)
 
-PLF is an open, file-based standard for capturing the prompts a developer sends to an agentic coding tool. It exists to make the human signal that built a piece of software — the questions, instructions, and corrections that shaped it — first-class, durable, and portable across tools.
+PLF is an open, file-based standard for capturing the prompts a developer sends to agentic coding tools. It exists to reliably capture the human signal that built a piece of software — the questions, instructions, and corrections that shaped it. This information can be used to more easily rewrite, port and abstract living software.
 
 This repository is the specification and reference assets for `plf-1`.
 
