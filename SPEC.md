@@ -25,15 +25,13 @@ A PLF data store has the following layout, relative to its root (typically `.pro
   YYYY/
     MM/
       DD/
-        HH/
-          <session-id>.jsonl
+        <session-id>.jsonl
 ```
 
 - `YYYY` is a four-digit year (UTC).
 - `MM` is a two-digit month (`01`–`12`).
 - `DD` is a two-digit day (`01`–`31`).
-- `HH` is a two-digit hour (`00`–`23`).
-- A file's path bucket MUST be derived from the **session start time** in UTC. Records added later in the session, even when they cross hour or day boundaries, MUST be appended to the same file.
+- A file's path bucket MUST be derived from the **session start date** in UTC. Records added later in the session, even when they cross day boundaries, MUST be appended to the same file.
 - `<session-id>` is the same string used as the `session_id` field of every record in the file. It MUST be globally unique. UUIDv4 is RECOMMENDED.
 
 ### 2.1 File framing

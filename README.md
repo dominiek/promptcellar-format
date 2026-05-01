@@ -10,7 +10,7 @@ A PLF record is a single JSON object describing one prompt: who wrote it, when, 
 
 ```
 .prompts/
-  YYYY/MM/DD/HH/
+  YYYY/MM/DD/
     <session-id>.jsonl
 ```
 
