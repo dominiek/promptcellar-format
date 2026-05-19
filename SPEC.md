@@ -55,7 +55,7 @@ Each line of a session file is one PLF record: a JSON object whose top-level fie
 A record is in one of two shapes:
 
 - **Captured**: contains a `prompt` field with the user's text.
-- **Excluded**: contains an `excluded` field describing why the prompt was not captured (see §3.9). An excluded record MUST NOT contain `prompt`, `outcome`, `enrichments`, `git`, or `parent`.
+- **Excluded**: contains an `excluded` field describing why the prompt was not captured (see §3.10). An excluded record MUST NOT contain `prompt`, `outcome`, `enrichments`, `git`, `cwd`, or `parent`.
 
 ### 3.1 Required fields
 
@@ -112,7 +112,15 @@ Snapshot of the working repository at prompt time.
 | `head_commit` | string | SHA (7–40 hex chars) of `HEAD` at prompt time. |
 | `dirty` | boolean | `true` if the working tree had uncommitted changes. |
 
-### 3.7 `parent` (optional)
+### 3.7 `cwd` (optional)
+
+A string giving the working directory the prompt was issued from, expressed as a path **relative to the PLF store root** (the directory that contains `.prompts/`). MUST use forward slashes (`/`). When omitted, consumers MUST treat the working directory as the store root itself.
+
+The field exists so consumers can resolve `outcome.files_touched` to a full path when one PLF store collects prompts from multiple sibling directories — for example, a workspace setup where `claude` is launched a level above several repos and all prompts land in one shared store. In that case `cwd` is typically a sibling path like `"../my-website"`, and joining `cwd` with each `files_touched` entry yields the path relative to the store root.
+
+When the working directory equals the store root, `cwd` SHOULD be omitted to keep records diff-clean. Tools MUST NOT emit absolute paths in `cwd`.
+
+### 3.8 `parent` (optional)
 
 Links this prompt to a prior prompt in the same session. Useful for representing retries or branched conversations.
 
@@ -120,22 +128,22 @@ Links this prompt to a prior prompt in the same session. Useful for representing
 |---|---|---|
 | `prompt_id` | string | The `id` of the prior record. MUST belong to the same `session_id`. |
 
-### 3.8 `outcome` (optional)
+### 3.9 `outcome` (optional)
 
 A summary of what the agent did in response. PLF deliberately captures summaries, not full transcripts.
 
 | Field | Type | Notes |
 |---|---|---|
 | `summary` | string | Short natural-language summary. SHOULD be ≤ ~500 characters. |
-| `files_touched` | array of strings | Repository-relative paths the agent edited. |
+| `files_touched` | array of strings | Paths the agent edited, relative to `cwd` (§3.7). When `cwd` is omitted these are relative to the PLF store root. |
 | `commits` | array of strings | SHAs created during the session that this prompt contributed to. |
 | `status` | string | One of `"completed"`, `"errored"`, `"interrupted"`, `"unknown"`. |
 
-### 3.9 `excluded` (optional)
+### 3.10 `excluded` (optional)
 
 Present only on stub records emitted when a prompt matched a `.promptcellarignore` pattern (see §4). When `excluded` is present:
 
-- `prompt`, `outcome`, `enrichments`, `git`, and `parent` MUST be absent.
+- `prompt`, `outcome`, `enrichments`, `git`, `cwd`, and `parent` MUST be absent.
 - All required fields (§3.1) MUST be present.
 
 | Field | Type | Notes |
@@ -143,7 +151,7 @@ Present only on stub records emitted when a prompt matched a `.promptcellarignor
 | `reason` | string | Required. Short human-readable phrase, e.g. `"matched .promptcellarignore"`. |
 | `pattern_id` | string | Optional. The `id:` label of the matching pattern, if it declared one. |
 
-### 3.10 `enrichments` (optional)
+### 3.11 `enrichments` (optional)
 
 Cost and time attribution. Tools SHOULD record what they have; all sub-fields are optional.
 
@@ -156,7 +164,7 @@ Cost and time attribution. Tools SHOULD record what they have; all sub-fields ar
 | `cost_usd` | number ≥ 0 | Best-effort estimate at capture time. |
 | `duration_ms` | integer ≥ 0 | Wall-clock from prompt submission to agent response complete. |
 
-### 3.11 Unknown fields
+### 3.12 Unknown fields
 
 Conforming readers MUST preserve unknown top-level fields when re-serialising a record (forward compatibility). Tool-specific extensions SHOULD be namespaced under a single `x_<tool>` object so they do not collide with future reserved names.
 
@@ -176,7 +184,7 @@ A repo-root file listing patterns that, when matched against a prompt's text, ca
 When any pattern matches the prompt text:
 
 - The captured record is NOT written.
-- An excluded stub (§3.9) is written in its place. The stub preserves the timeline so consumers can see that capture was skipped.
+- An excluded stub (§3.10) is written in its place. The stub preserves the timeline so consumers can see that capture was skipped.
 - Matching MUST be performed locally before any prompt is written to disk.
 
 ### 4.3 Example
